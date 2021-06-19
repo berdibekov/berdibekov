@@ -44,7 +44,7 @@ public class NoteRepository {
     }
 
     public Note save(Note note) throws SQLException {
-        String sql = "INSERT INTO notes ( name , date ,text) VALUES(?,?,?) ;";
+        String sql = "INSERT INTO notes ( name , date_time ,text) VALUES(?,?,?) ;";
         String insertedNoteIdQuery = "SELECT max(note_id) from notes ;";
 
 
@@ -54,7 +54,7 @@ public class NoteRepository {
              PreparedStatement insertNotesTags = connection.prepareStatement(insertNotesTagsSql);
              Statement getNoteId = connection.createStatement()) {
             insertNote.setString(1, note.getNoteName());
-            insertNote.setDate(2, Date.valueOf(note.getDate()));
+            insertNote.setTimestamp(2,new Timestamp(note.getDateTime().getTime()));
             insertNote.setString(3, note.getText());
             insertNote.execute();
             ResultSet resultSet = getNoteId.executeQuery(insertedNoteIdQuery);
@@ -83,7 +83,7 @@ public class NoteRepository {
     }
 
     public void update(long noteId, Note note) throws SQLException {
-        String updateNoteSql = "UPDATE notes SET name = ?, text = ?,date = ? WHERE note_id = 7;";
+        String updateNoteSql = "UPDATE notes SET name = ?, text = ?,date_time = ? WHERE note_id = 7;";
         String deleteNotesTagsSql = "delete from notes_tags WHERE note_id = ?;";
 
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
@@ -93,7 +93,7 @@ public class NoteRepository {
              PreparedStatement insertTag = connection.prepareStatement(insertTagSql)) {
             updateNote.setString(1, note.getNoteName());
             updateNote.setString(2, note.getText());
-            updateNote.setDate(3, Date.valueOf(note.getDate()));
+            updateNote.setTimestamp(3, new Timestamp(note.getDateTime().getTime()));
             updateNote.execute();
             deleteNotesTags.setLong(1, noteId);
             note.setId(noteId);
@@ -188,7 +188,7 @@ public class NoteRepository {
             List<String> hashTags = new ArrayList<>();
             note.setHashTags(hashTags);
             note.setId(resultSet.getLong("note_id"));
-            note.setDate(resultSet.getDate("date").toLocalDate());
+            note.setDateTime(resultSet.getTimestamp("date_time"));
             note.setText(resultSet.getString("text"));
             note.setNoteName(resultSet.getString("name"));
             findTags.setLong(1, note.getId());

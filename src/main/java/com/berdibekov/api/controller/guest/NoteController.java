@@ -18,6 +18,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 @RequestMapping({"/guest/api/"})
@@ -38,8 +39,8 @@ public class NoteController {
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Successfully."),
             @ApiResponse(code = 500, message = "Error creating Note", response = ErrorDetail.class)})
 
-    public ResponseEntity<List<Note>> getAllNotes(@RequestParam(required = false) String subString,
-                                                  @RequestParam(required = false) String hashTag) throws SQLException {
+    public ResponseEntity<List<Note>> getFilteredNotes(@RequestParam(required = false) String subString,
+                                                       @RequestParam(required = false) String hashTag) throws SQLException {
         List<Note> notes = noteFilterService.getFilteredNotes(subString, hashTag);
         return new ResponseEntity<>(notes, HttpStatus.OK);
     }
@@ -51,6 +52,7 @@ public class NoteController {
             @ApiResponse(code = 500, message = "Error creating Note", response = ErrorDetail.class)})
 
     public ResponseEntity<Void> createNote(@Valid @RequestBody Note note) throws SQLException {
+        note.setDateTime(new Date(System.currentTimeMillis()));
         note = noteRepository.save(note);
         HttpHeaders responseHeaders = getHttpHeadersForNewResource(note.getId());
         return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
@@ -74,6 +76,7 @@ public class NoteController {
 
     public ResponseEntity<Void> updateNote(@PathVariable long noteId, @Valid @RequestBody Note note) throws SQLException {
         verifyNote(noteId);
+        note.setDateTime(new Date(System.currentTimeMillis()));
         noteRepository.update(noteId, note);
         HttpHeaders responseHeaders = getHttpHeadersForNewResource(note.getId());
         return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);

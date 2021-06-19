@@ -20,7 +20,7 @@ public class NoteFilterService {
     }
 
     public List<Note> getFilteredNotes(@RequestParam(required = false) String subString, @RequestParam(required = false) String hashTag) throws SQLException {
-        List<Note> notes = null;
+        List<Note> notes;
         if (subString == null && hashTag != null) {
             notes = noteRepository.findAllByHashTag(hashTag);
         } else if (subString != null && hashTag == null) {
