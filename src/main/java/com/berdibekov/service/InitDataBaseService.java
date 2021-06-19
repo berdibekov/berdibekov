@@ -28,7 +28,7 @@ public class InitDataBaseService {
 
     private void createDatabaseIfNotExists(String sql) throws SQLException {
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
-             Statement init = connection.createStatement();) {
+             Statement init = connection.createStatement()) {
             init.execute(sql);
         }
     }
@@ -37,7 +37,7 @@ public class InitDataBaseService {
         return "CREATE TABLE IF NOT EXISTS notes\n" +
                 "(\n" +
                 "    note_id INTEGER PRIMARY KEY auto_increment,\n" +
-                "    data    DATE NOT NULL,\n" +
+                "    date_time    DATETIME NOT NULL,\n" +
                 "    name    VARCHAR,\n" +
                 "    text    TEXT NOT NULL\n" +
                 ");\n" +
