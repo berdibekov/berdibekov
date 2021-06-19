@@ -1,7 +1,7 @@
 package com.berdibekov.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -19,5 +19,6 @@ public class Note {
 
     private List<String> hashTags;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Date dateTime;
 }
