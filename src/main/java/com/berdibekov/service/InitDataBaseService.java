@@ -2,38 +2,38 @@ package com.berdibekov.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
-import java.sql.*;
-import java.util.Objects;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 @Component
 public class InitDataBaseService {
-    @Value("${db.host}")
+
     private String dataBaseURL;
 
     @Autowired
-    public InitDataBaseService(){
+    public InitDataBaseService(@Value("${db.host}") String dataBaseURL) {
         try {
+            this.dataBaseURL = dataBaseURL;
             Class.forName("org.h2.Driver");
             String sql = lodeInitScript();
             createDatabaseIfNotExists(sql);
-        } catch (ClassNotFoundException | FileNotFoundException | SQLException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             System.err.println(e.getMessage());
         }
     }
 
     private void createDatabaseIfNotExists(String sql) throws SQLException {
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
-             Statement init = connection.createStatement();){
+             Statement init = connection.createStatement();) {
             init.execute(sql);
         }
     }
 
-    private String lodeInitScript() throws FileNotFoundException {
+    private String lodeInitScript() {
         return "CREATE TABLE IF NOT EXISTS notes\n" +
                 "(\n" +
                 "    note_id INTEGER PRIMARY KEY auto_increment,\n" +
@@ -53,6 +53,5 @@ public class InitDataBaseService {
                 "    tag_id  VARCHAR REFERENCES tags (tag_id) ON DELETE CASCADE,\n" +
                 "    PRIMARY KEY (note_id, tag_id)\n" +
                 ");";
-
     }
 }
