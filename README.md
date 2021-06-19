@@ -1,11 +1,10 @@
 
- What has been done:
+ What was done:
  -
  1. Note-app - REST application based on Spring boot framework(Spring mvc) ,JDBC.
    
  1. Database - H2 
  
-
  1. App functionality 
  
     Notes - Add/Update/DELETE
@@ -46,8 +45,8 @@ Compile and run instruction
 - requests by postman.
     At /docs you can find postman collection and json example of request body.
 
-Create note
--
+# Create note
+
 
    ![Alt text](docs/create.png?raw=true)
    #Get filtered notes
