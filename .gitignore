@@ -16,6 +16,7 @@ tmp/
 *.tmp
 *.jar
 *.bak
+*.log
 *.swp
 *~.nib
 local.properties
