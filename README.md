@@ -49,10 +49,9 @@ Compile and run instruction
 Create note
 -
 
-   ![alt text](docs\create.png)
-   
+   ![Alt text](docs/create.png?raw=true)
    #Get filtered notes
-   ![alt text](docs\getFiltered.png)
+   ![alt text](docs/getFiltered.png?raw=true)
     
     
     
