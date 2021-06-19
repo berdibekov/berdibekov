@@ -2,6 +2,7 @@ package com.berdibekov.api.controller.guest;
 
 import com.berdibekov.domain.Note;
 import com.berdibekov.dto.error.ErrorDetail;
+import com.berdibekov.exception.InternalErrorException;
 import com.berdibekov.exception.ResourceNotFoundException;
 import com.berdibekov.repository.NoteRepository;
 import com.berdibekov.service.NoteFilterService;
@@ -36,13 +37,18 @@ public class NoteController {
 
     @RequestMapping(value = "/notes", method = RequestMethod.GET)
     @ApiOperation(value = "Get filtered notes")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successfully."),
-            @ApiResponse(code = 500, message = "Error creating Note", response = ErrorDetail.class)})
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Successfully.")})
 
     public ResponseEntity<List<Note>> getFilteredNotes(@RequestParam(required = false) String subString,
-                                                       @RequestParam(required = false) String hashTag) throws SQLException {
-        List<Note> notes = noteFilterService.getFilteredNotes(subString, hashTag);
-        return new ResponseEntity<>(notes, HttpStatus.OK);
+                                                       @RequestParam(required = false) String hashTag) {
+        List<Note> notes = null;
+        try {
+            notes = noteFilterService.getFilteredNotes(subString, hashTag);
+            return new ResponseEntity<>(notes, HttpStatus.OK);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalErrorException("Internal Error");
+        }
     }
 
 
@@ -51,11 +57,16 @@ public class NoteController {
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Note Created Successfully."),
             @ApiResponse(code = 500, message = "Error creating Note", response = ErrorDetail.class)})
 
-    public ResponseEntity<Void> createNote(@Valid @RequestBody Note note) throws SQLException {
-        note.setDateTime(new Date(System.currentTimeMillis()));
-        note = noteRepository.save(note);
-        HttpHeaders responseHeaders = getHttpHeadersForNewResource(note.getId());
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+    public ResponseEntity<Void> createNote(@Valid @RequestBody Note note) {
+        try {
+            note.setDateTime(new Date(System.currentTimeMillis()));
+            note = noteRepository.save(note);
+            HttpHeaders responseHeaders = getHttpHeadersForNewResource(note.getId());
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalErrorException("Error creating Note");
+        }
     }
 
     @RequestMapping(value = "/notes/{noteId}", method = RequestMethod.DELETE)
@@ -63,23 +74,33 @@ public class NoteController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = ""),
             @ApiResponse(code = 404, message = "Unable to find note.", response = ErrorDetail.class)})
 
-    public ResponseEntity<Void> deleteNote(@PathVariable Long noteId) throws SQLException {
-        verifyNote(noteId);
-        noteRepository.deleteById(noteId);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<Void> deleteNote(@PathVariable Long noteId) {
+        try {
+            verifyNote(noteId);
+            noteRepository.deleteById(noteId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalErrorException("Internal Error");
+        }
     }
 
     @RequestMapping(value = "/notes/{noteId}", method = RequestMethod.PUT)
-    @ApiOperation(value = "Creates a new Note")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Note created successfully."),
+    @ApiOperation(value = "Updates a new Note")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Note updated successfully."),
             @ApiResponse(code = 500, message = "Error creating Poll", response = ErrorDetail.class)})
 
-    public ResponseEntity<Void> updateNote(@PathVariable long noteId, @Valid @RequestBody Note note) throws SQLException {
-        verifyNote(noteId);
-        note.setDateTime(new Date(System.currentTimeMillis()));
-        noteRepository.update(noteId, note);
-        HttpHeaders responseHeaders = getHttpHeadersForNewResource(note.getId());
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+    public ResponseEntity<Void> updateNote(@PathVariable long noteId, @Valid @RequestBody Note note) {
+        try {
+            verifyNote(noteId);
+            note.setDateTime(new Date(System.currentTimeMillis()));
+            noteRepository.update(noteId, note);
+            HttpHeaders responseHeaders = getHttpHeadersForNewResource(note.getId());
+            return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new InternalErrorException("Internal Error");
+        }
     }
 
     private HttpHeaders getHttpHeadersForNewResource(Long id) {

@@ -4,14 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.CONFLICT)
-public class ResourceAlreadyExistsException extends RuntimeException {
+public class InternalErrorException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
-    public ResourceAlreadyExistsException() {
+    public InternalErrorException() {
         super();
     }
 
-    public ResourceAlreadyExistsException(String message) {
+    public InternalErrorException(String message) {
         super(message);
     }
 }

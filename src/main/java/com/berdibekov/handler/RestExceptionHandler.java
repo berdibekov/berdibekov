@@ -3,7 +3,7 @@ package com.berdibekov.handler;
 import com.berdibekov.dto.error.ErrorDetail;
 import com.berdibekov.dto.error.ValidationError;
 import com.berdibekov.exception.IncorrectActionException;
-import com.berdibekov.exception.ResourceAlreadyExistsException;
+import com.berdibekov.exception.InternalErrorException;
 import com.berdibekov.exception.ResourceNotFoundException;
 import com.berdibekov.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +60,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorDetail, null, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<?> handleResourceAlreadyExistsException(ResourceAlreadyExistsException raee, HttpServletRequest request) {
+    @ExceptionHandler(InternalErrorException.class)
+    public ResponseEntity<?> handleResourceAlreadyExistsException(InternalErrorException raee, HttpServletRequest request) {
 
         ErrorDetail errorDetail = new ErrorDetail();
         errorDetail.setTimeStamp(new Date().getTime());
