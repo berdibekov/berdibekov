@@ -30,12 +30,21 @@ Compile and run instruction
 - From Console 
     - Windows
         - run make.bat
-        - run scripts\poll-app.bat
+        - run scripts\note-app.bat
     - UNIX (Linux,Mac OS)     
         - chmod ugo+x make.sh 
         - make.sh (UNIX)
         - chmod ugo+x scripts\poll-app.sh
-        - scripts\poll-app.sh (UNIX)
+        - scripts\note-app.sh (UNIX)
  
+#Use instructions
+1. to filter by subString specify subString param in GET request.
+1. to filter by hash tag specify hashTag param in GET request.
+
+- requests by swagger.
+    http://localhost:8080/swagger-ui/index.html
+- requests by postman.
+    At /docs you can find postman collection and json example of request body.
+
     
     
