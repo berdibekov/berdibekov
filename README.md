@@ -46,5 +46,13 @@ Compile and run instruction
 - requests by postman.
     At /docs you can find postman collection and json example of request body.
 
+Create note
+-
+
+   ![alt text](docs\create.png)
+   
+   #Get filtered notes
+   ![alt text](docs\getFiltered.png)
+    
     
     
