@@ -1,6 +1,7 @@
 package com.berdibekov.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
@@ -10,6 +11,7 @@ import java.util.List;
 @Data
 public class Note {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private long id;
 
     private String noteName;
@@ -19,6 +21,7 @@ public class Note {
 
     private List<String> hashTags;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private Date dateTime;
 }
