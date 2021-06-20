@@ -31,10 +31,10 @@ Compile and run instruction
         - run make.bat
         - run scripts\note-app.bat
     - UNIX (Linux,Mac OS)     
-        - chmod ugo+x make.sh 
-        - make.sh (UNIX)
-        - chmod ugo+x scripts\poll-app.sh
-        - scripts\note-app.sh (UNIX)
+        - run chmod ugo+x make.sh 
+        - run make.sh (UNIX)
+        - run chmod ugo+x scripts\note-app.sh
+        - run scripts\note-app.sh (UNIX)
  
 #Use instructions
 1. to filter by subString specify subString param in GET request.
