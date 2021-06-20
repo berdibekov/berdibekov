@@ -115,10 +115,7 @@ public class NoteRepository {
              PreparedStatement selectBySubstring = connection.prepareStatement(sql)) {
             selectBySubstring.setLong(1, noteId);
             selectBySubstring.executeQuery();
-            if (selectBySubstring.executeQuery().next()) {
-                return true;
-            }
-            return false;
+            return (selectBySubstring.executeQuery().next());
         }
     }
 
