@@ -35,7 +35,10 @@ Compile and run instruction
         - run make.sh (UNIX)
         - run chmod ugo+x scripts\note-app.sh
         - run scripts\note-app.sh (UNIX)
- 
+- Run in Docker
+    - run buildDocker.bat (Windows) / buildDocker.sh (UNIX) to build /Dockerfile.
+    - run stopDocker.bat (Windows) / stopDocker.sh (UNIX) to stop container.
+    - run startDocker.bat (Windows) / startDocker.sh (UNIX) to restart container.    
 #Use instructions
 1. to filter by subString specify subString param in GET request.
 1. to filter by hash tag specify hashTag param in GET request.
@@ -46,7 +49,6 @@ Compile and run instruction
     At /docs you can find postman collection and json example of request body.
 
 # Create note
-
 
    ![Alt text](docs/create.png?raw=true)
    #Get filtered notes
