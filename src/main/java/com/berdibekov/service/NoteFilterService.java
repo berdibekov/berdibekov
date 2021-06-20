@@ -19,13 +19,14 @@ public class NoteFilterService {
         this.noteRepository = noteRepository;
     }
 
-    public List<Note> getFilteredNotes(@RequestParam(required = false) String subString, @RequestParam(required = false) String hashTag) throws SQLException {
+    public List<Note> getFilteredNotes(@RequestParam(required = false) String subString,
+                                       @RequestParam(required = false) String hashTag) throws SQLException {
         List<Note> notes;
         if (subString == null && hashTag != null) {
             notes = noteRepository.findAllByHashTag(hashTag);
         } else if (subString != null && hashTag == null) {
             notes = noteRepository.findAllBySubString(subString);
-        } else if (subString != null && hashTag != null) {
+        } else if (subString != null) {
             notes = noteRepository.findAllByHashTagAndSubString(subString, hashTag);
         } else {
             notes = noteRepository.findAll();
