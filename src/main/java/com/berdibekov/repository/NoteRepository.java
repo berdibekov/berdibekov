@@ -15,25 +15,20 @@ public class NoteRepository {
     @Value("${db.host}")
     private String dataBaseURL;
 
-    private String insertNotesTagsSql =
-            "INSERT INTO notes_tags\n" +
-            "    (note_id, tag_id) " +
-            "SELECT ?, ?\n" +
-            "WHERE NOT EXISTS(\n" +
-            "        SELECT note_id, tag_id FROM notes_tags WHERE note_id = ? AND tag_id = ?  \n" +
-            "    );";
+    private String insertNotesTagsSql = "INSERT INTO notes_tags (note_id, tag_id) " +
+                                        "SELECT ?, ? " +
+                                        "WHERE NOT EXISTS(" +
+                                        "       SELECT note_id, tag_id " +
+                                        "       FROM notes_tags " +
+                                        "       WHERE note_id = ? AND tag_id = ?);";
 
-    private String insertTagSql = "INSERT INTO tags\n" +
-            "(tag_id) " +
-            "SELECT ? " +
-            "WHERE " +
-            "    NOT EXISTS (" +
-            "            SELECT tag_id FROM tags WHERE tag_id = ?" +
-            "        );";
+    private String insertTagSql = "INSERT INTO tags (tag_id) " +
+                                  "     SELECT ? " +
+                                  "     WHERE NOT EXISTS (SELECT tag_id FROM tags WHERE tag_id = ?);";
 
-    private String sqlFindTags = "select t.* from tags t  " +
-            "left join notes_tags on t.tag_id = notes_tags.tag_id " +
-            "WHERE note_id = ?;";
+    private String findTagsSql = "select t.* from tags t " +
+                                 "left join notes_tags on t.tag_id = notes_tags.tag_id " +
+                                 "WHERE note_id = ?;";
 
     public NoteRepository() {
         try {
@@ -47,14 +42,13 @@ public class NoteRepository {
         String sql = "INSERT INTO notes ( name , date_time ,text) VALUES(?,?,?) ;";
         String insertedNoteIdQuery = "SELECT max(note_id) from notes ;";
 
-
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
              PreparedStatement insertNote = connection.prepareStatement(sql);
              PreparedStatement insertTag = connection.prepareStatement(insertTagSql);
              PreparedStatement insertNotesTags = connection.prepareStatement(insertNotesTagsSql);
              Statement getNoteId = connection.createStatement()) {
             insertNote.setString(1, note.getNoteName());
-            insertNote.setTimestamp(2,new Timestamp(note.getDateTime().getTime()));
+            insertNote.setTimestamp(2, new Timestamp(note.getDateTime().getTime()));
             insertNote.setString(3, note.getText());
             insertNote.execute();
             ResultSet resultSet = getNoteId.executeQuery(insertedNoteIdQuery);
@@ -62,7 +56,7 @@ public class NoteRepository {
                 int noteId = resultSet.getInt(1);
                 note.setId(noteId);
             }
-            saveNote(note, insertNotesTags, insertTag);
+            insertNoteTags(note, insertNotesTags, insertTag);
             return note;
         }
     }
@@ -96,12 +90,13 @@ public class NoteRepository {
             updateNote.setTimestamp(3, new Timestamp(note.getDateTime().getTime()));
             updateNote.execute();
             deleteNotesTags.setLong(1, noteId);
+            deleteNotesTags.execute();
             note.setId(noteId);
-            saveNote(note, insertNotesTags, insertTag);
+            insertNoteTags(note, insertNotesTags, insertTag);
         }
     }
 
-    private void saveNote(Note note, PreparedStatement insertNotesTags, PreparedStatement insertTag) throws SQLException {
+    private void insertNoteTags(Note note, PreparedStatement insertNotesTags, PreparedStatement insertTag) throws SQLException {
         for (String hashTag : note.getHashTags()) {
             insertTag.setString(1, hashTag);
             insertTag.setString(2, hashTag);
@@ -130,7 +125,9 @@ public class NoteRepository {
     public List<Note> findAllBySubString(String subString) throws SQLException {
         List<Note> notes = new ArrayList<>();
         String sql = "select * from notes where text LIKE ?;";
-        String sqlFindTags = "select t.* from tags t  left join notes_tags on t.tag_id = notes_tags.tag_id WHERE note_id = ?;";
+        String sqlFindTags = "select t.* from tags t  " +
+                             "left join notes_tags on t.tag_id = notes_tags.tag_id " +
+                             "WHERE note_id = ?;";
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
              PreparedStatement selectBySubstring = connection.prepareStatement(sql);
              PreparedStatement findTags = connection.prepareStatement(sqlFindTags)) {
@@ -143,8 +140,12 @@ public class NoteRepository {
 
     public List<Note> findAllByHashTag(String hashTag) throws SQLException {
         List<Note> notes = new ArrayList<>();
-        String sql = "select n.* FROM NOTES n LEFT JOIN notes_tags ON n.note_id = notes_tags.note_id WHERE tag_id = ?";
-        String sqlFindTags = "select t.* from tags t  left join notes_tags on t.tag_id = notes_tags.tag_id WHERE note_id = ?;";
+        String sql = "select n.* FROM NOTES n " +
+                     "LEFT JOIN notes_tags ON n.note_id = notes_tags.note_id " +
+                     "WHERE tag_id = ?";
+        String sqlFindTags = "select t.* from tags t  " +
+                             "left join notes_tags on t.tag_id = notes_tags.tag_id " +
+                             "WHERE note_id = ?;";
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
              PreparedStatement findByTag = connection.prepareStatement(sql);
              PreparedStatement findTags = connection.prepareStatement(sqlFindTags)) {
@@ -157,12 +158,13 @@ public class NoteRepository {
 
     public List<Note> findAllByHashTagAndSubString(String subString, String hashTag) throws SQLException {
         List<Note> notes = new ArrayList<>();
-        String sql = "select n.* FROM NOTES n LEFT JOIN notes_tags ON n.note_id = notes_tags.note_id WHERE tag_id = ? " +
-                "AND n.note_id IN (select note_id from notes where text LIKE ?);";
+        String sql = "select n.* FROM NOTES n " +
+                     "LEFT JOIN notes_tags ON n.note_id = notes_tags.note_id " +
+                     "WHERE tag_id = ? AND n.note_id IN (select note_id from notes where text LIKE ?);";
 
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
              PreparedStatement findByTagAndSubString = connection.prepareStatement(sql);
-             PreparedStatement findTags = connection.prepareStatement(sqlFindTags)) {
+             PreparedStatement findTags = connection.prepareStatement(findTagsSql)) {
             findByTagAndSubString.setString(1, hashTag);
             findByTagAndSubString.setString(2, "%" + subString + "%");
             ResultSet resultSet = findByTagAndSubString.executeQuery();
@@ -176,7 +178,7 @@ public class NoteRepository {
         List<Note> notes = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
              ResultSet noteSet = connection.createStatement().executeQuery(sql);
-             PreparedStatement findTags = connection.prepareStatement(sqlFindTags)) {
+             PreparedStatement findTags = connection.prepareStatement(findTagsSql)) {
             mapNotes(notes, findTags, noteSet);
         }
         return notes;
