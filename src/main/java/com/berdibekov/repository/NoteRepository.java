@@ -121,7 +121,7 @@ public class NoteRepository {
 
     public List<Note> findAllBySubString(String subString) throws SQLException {
         List<Note> notes = new ArrayList<>();
-        String sql = "select * from notes where text LIKE ?;";
+        String sql = "select * from notes where text LIKE ? OR name LIKE ?;";
         String sqlFindTags = "select t.* from tags t  " +
                              "left join notes_tags on t.tag_id = notes_tags.tag_id " +
                              "WHERE note_id = ?;";
@@ -129,6 +129,7 @@ public class NoteRepository {
              PreparedStatement selectBySubstring = connection.prepareStatement(sql);
              PreparedStatement findTags = connection.prepareStatement(sqlFindTags)) {
             selectBySubstring.setString(1, "%" + subString + "%");
+            selectBySubstring.setString(2, "%" + subString + "%");
             ResultSet resultSet = selectBySubstring.executeQuery();
             mapNotes(notes, findTags, resultSet);
             return notes;
@@ -157,13 +158,14 @@ public class NoteRepository {
         List<Note> notes = new ArrayList<>();
         String sql = "select n.* FROM NOTES n " +
                      "LEFT JOIN notes_tags ON n.note_id = notes_tags.note_id " +
-                     "WHERE tag_id = ? AND n.note_id IN (select note_id from notes where text LIKE ?);";
+                     "WHERE tag_id = ? AND n.note_id IN (select note_id from notes where text LIKE ? OR name LIKE ?);";
 
         try (Connection connection = DriverManager.getConnection(dataBaseURL);
              PreparedStatement findByTagAndSubString = connection.prepareStatement(sql);
              PreparedStatement findTags = connection.prepareStatement(findTagsSql)) {
             findByTagAndSubString.setString(1, hashTag);
             findByTagAndSubString.setString(2, "%" + subString + "%");
+            findByTagAndSubString.setString(3, "%" + subString + "%");
             ResultSet resultSet = findByTagAndSubString.executeQuery();
             mapNotes(notes, findTags, resultSet);
             return notes;
